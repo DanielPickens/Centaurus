@@ -1,0 +1,257 @@
+project_name: "centaurus"
+version: 2
+
+before:
+  hooks:
+    - sh -c "yarn --cwd client install && yarn --cwd client run build && rm -rf backend/routes/static && mv client/dist backend/routes/static"
+
+builds:
+  - main: main.go
+    dir: ./backend
+    binary: centaurus
+    goos: ["linux", "darwin", "windows", "freebsd"]
+    goarch: ["386", "amd64", "arm64"]
+    flags:
+      - -trimpath
+    ldflags:
+      - -s
+      - -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.ShortCommit}}
+    env:
+      - CGO_ENABLED=0
+
+
+universal_binaries:
+  - replace: true
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+sboms:
+  - artifacts: archive
+
+nfpms:
+  - builds:
+      - centaurus
+    vendor: centaurus
+    homepage: "https://github.com/centaurus/centaurus"
+    maintainer: "Daniel Pickens <DanielPickens@gmail.com>"
+    description: "centaurus is a single binary to manage multiple clusters."
+    license: "Apache License 2.0"
+    formats:
+      - deb
+      - rpm
+      - archlinux
+    bindir: /usr/bin
+    recommends:
+    - kubectl
+
+brews:
+  - repository:
+      owner: centaurus
+      name: homebrew-tap
+    name: centaurus
+    homepage: "https://github.com/centaurus/centaurus"
+    description: "centaurus is a single binary to manage multiple clusters."
+    license: "Apache License 2.0"
+    skip_upload: auto
+    commit_author:
+      name: abhimanyu003
+      email: DanielPickens@gmail.com
+    directory: Formula
+    install: |-
+      bin.install "centaurus"
+    test: |
+      system "#{bin}/centaurus -v"
+
+scoops:
+  - repository:
+      owner: centaurus
+      name: scoop-bucket
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    name: centaurus
+    homepage: "https://github.com/centaurus/centaurus"
+    description: "centaurus is a single binary to manage multiple clusters."
+    license: "Apache License 2.0"
+
+aurs:
+  - name: centaurus-bin
+    homepage: "https://github.com/centaurus/centaurus"
+    description: "centaurus is a single binary to manage multiple clusters."
+    maintainers:
+      - "Daniel Pickens <DanielPickens@gmail.com>"
+    license: "Apache License 2.0"
+    private_key: "{{ .Env.AUR_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/centaurus-bin.git"
+    commit_author:
+      name: Daniel Pickens
+      email: DanielPickens@gmail.com
+
+snapcrafts:
+  - name: centaurus
+    publish: true
+    summary: A single binary Kubernetes Open-Source Dashboard.
+    description: |
+      centaurus is single binary Kubernetes Open-Source Dashboard.
+    grade: stable
+    confinement: strict
+    license: "Apache-2.0"
+    base: core20
+    channel_templates:
+      - stable
+    apps:
+      centaurus:
+        plugs: ["home", "network", "network-bind"]
+
+dockers:
+  - skip_push: false
+    use: buildx
+    dockerfile: .goreleaser.Dockerfile
+    image_templates:
+      - ghcr.io/centaurus/{{ .ProjectName }}:{{ .Version }}-amd64
+      - docker.io/centaurus/{{ .ProjectName }}:{{ .Version }}-amd64
+    build_flag_templates:
+      - --platform=linux/amd64
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.revision={{ .Commit }}
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.description=a single binary to manage multiple clusters
+      - --label=org.opencontainers.image.vendor=centaurus
+      - --label=org.opencontainers.image.licenses=Apache License 2.0
+      - --label=org.opencontainers.image.source=https://github.com/centaurus/centaurus
+      - --label=org.opencontainers.image.authors=Daniel Pickens <DanielPickens@gmail.com>
+
+  - skip_push: false
+    goarch: arm64
+    use: buildx
+    dockerfile: .goreleaser.Dockerfile
+    image_templates:
+      - ghcr.io/centaurus/{{ .ProjectName }}:{{ .Version }}-arm64
+      - docker.io/centaurus/{{ .ProjectName }}:{{ .Version }}-arm64
+    build_flag_templates:
+      - --platform=linux/arm64
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.revision={{ .Commit }}
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.description=a single binary to manage multiple clusters
+      - --label=org.opencontainers.image.vendor=centaurus
+      - --label=org.opencontainers.image.licenses=Apache License 2.0
+      - --label=org.opencontainers.image.source=https://github.com/centaurus/centaurus
+      - --label=org.opencontainers.image.authors=Daniel Pickens <DanielPickens@gmail.com>
+docker_manifests:
+  - name_template: ghcr.io/centaurus/{{ .ProjectName }}:{{ .Version }}
+    image_templates:
+      - ghcr.io/centaurus/{{ .ProjectName }}:{{ .Version }}-amd64
+      - ghcr.io/centaurus/{{ .ProjectName }}:{{ .Version }}-arm64
+  - name_template: ghcr.io/centaurus/{{ .ProjectName }}:latest
+    image_templates:
+      - ghcr.io/centaurus/{{ .ProjectName }}:{{ .Version }}-amd64
+      - ghcr.io/centaurus/{{ .ProjectName }}:{{ .Version }}-arm64
+  - name_template: docker.io/centaurus/{{ .ProjectName }}:{{ .Version }}
+    image_templates:
+      - docker.io/centaurus/{{ .ProjectName }}:{{ .Version }}-amd64
+      - docker.io/centaurus/{{ .ProjectName }}:{{ .Version }}-arm64
+  - name_template: docker.io/centaurus/{{ .ProjectName }}:latest
+    image_templates:
+      - docker.io/centaurus/{{ .ProjectName }}:{{ .Version }}-amd64
+      - docker.io/centaurus/{{ .ProjectName }}:{{ .Version }}-arm64
+
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    output: true
+    artifacts: checksum
+    args:
+      - sign-blob
+      - "--oidc-provider=github-actions"
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - --yes
+
+docker_signs:
+  - cmd: cosign
+    artifacts: manifests
+    output: true
+    args:
+      - "sign"
+      - "--oidc-provider=github-actions"
+      - "${artifact}@${digest}"
+      - --yes
+
+winget:
+  - name: centaurus
+    publisher: centaurus
+    publisher_url: https://github.com/centaurus/centaurus
+    short_description: A single binary kubernetes dashboard to manage your multiple clusters.
+    license: "Apache License 2.0"
+    commit_author:
+      name: Daniel Pickens
+      email: DanielPickens@gmail.com
+    homepage: https://github.com/centaurus/centaurus
+    license_url: https://github.com/danielpickens/centaurusblob/master/LICENSE
+    copyright: Copyright (c) 2024-{{ .Now.Format "2006" }} centaurus
+    release_notes: '{{ .Changelog }}'
+    release_notes_url: https://github.com/danielpickens/centaurusreleases/tag/{{ .Tag }}
+    tags:
+      - kubernetes
+      - kubernetes-dashboard
+      - kubernetes-gui
+      - transform
+      - devutil
+      - productivity
+    author: Daniel Pickens
+    publisher_support_url: https://github.com/danielpickens/centaurusissues
+    repository:
+      owner: centaurus
+      name: winget-pkgs
+      branch: centaurus-{{ .Version }}
+      token: '{{ .Env.GITHUB_TOKEN }}'
+      pull_request:
+        enabled: true
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
+
+release:
+  footer: |
+    ## Quick Download Links - {{ .Tag }}
+
+    **MacOS**
+    [Binary](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Darwin_all.tar.gz) ( Multi-Architecture )
+
+    **Linux (Binaries)**
+    [amd64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Linux_x86_64.tar.gz) | [arm64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Linux_arm64.tar.gz) | [i386](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Linux_i386.tar.gz)
+
+    **Windows (Exe)**
+    [amd64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Windows_x86_64.zip) | [arm64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Windows_arm64.zip) | [i386](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Windows_i386.zip)
+
+    **FreeBSD (Binaries)**
+    [amd64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Freebsd_x86_64.tar.gz) | [arm64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Freebsd_arm64.tar.gz) | [i386](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_Freebsd_i386.tar.gz)
+
+    **Packages**
+    * **Debian / Ubuntu (.deb):**
+    [amd64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_amd64.deb) | [arm64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_arm64.deb) | [i386](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_386.deb)
+
+    * **Red Hat / CentOS / Fedora (.rpm):**
+    [amd64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_amd64.rpm) | [arm64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_arm64.rpm) | [i386](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_386.rpm)
+
+    * **Arch Linux (.pkg.tar.zst):**
+    [amd64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_amd64.pkg.tar.zst) | [arm64](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_arm64.pkg.tar.zst) | [i386](https://github.com/danielpickens/centaurusreleases/download/{{ .Tag }}/centaurus_{{ replace .Tag "v" "" }}_linux_386.pkg.tar.zst)

@@ -1,0 +1,23 @@
+apiVersion: v2
+name: centaurus
+description: A single binary kubernetes dashboard to manage your multiple clusters.
+home: https://github.com/centaurus/centaurus.git
+icon: "https://raw.githubusercontent.com/danielpickens/centaurus7d87fe6c59bd3478cb65fa0d3247b5d01294d9ad/media/centaurus-logo-dark.svg"
+keywords:
+  - centaurus
+  - management
+  - dashboard
+  - kubernetes-dashboard
+  - kubernetes-ui
+type: application
+maintainers:
+  - name: "danielpickens"
+    email: "danielpickens@gmail.com"
+    url: "https://github.com/danielpickens"
+  - name: "daniel pickens"
+    email: "danielpickens@gmail.com"
+    url: "https://github.com/danielpickens"
+version: 0.0.0
+sources:
+  - https://github.com/centaurus/centaurus.git
+appVersion: 0.0.0
