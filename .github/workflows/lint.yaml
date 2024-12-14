@@ -7,7 +7,7 @@ on:
       - v1.0.0
   pull_request:
     types:
-      - unlocked
+      - locked
 
 jobs:
 
@@ -20,22 +20,7 @@ jobs:
       docs: ${{ steps.filter.outputs.docs }}
     steps:
       - uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          base: main
-          filters: |
-            golang:
-            #   - "api-server/**"
-            #   - "common/**"
-            #   - "schemas/**"
-            # js:
-            #   - "dashboard/**"
-            # helmcharts:
-            #   - "helm/**"
-            # docs:
-            #   - requirements/docs-requirements.txt
-            #   - "docs/**"
+      
 
   eslint:
     runs-on: ubuntu-latest
