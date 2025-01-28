@@ -108,3 +108,32 @@ for h in range ticker {
 }
 	defer ticker.Stop()
 }
+
+func (h *BaseHandler) GetEventStream(c echo.Context) {
+	streamID := h.buildEventStreamID(c)
+	events := h.fetchEvents(c)
+	data := h.marshalEvents(events)
+
+	if len(data) == 0 {
+		return
+	}
+
+	h.publishEvents(streamID, data)
+	ticker := h.startEventTicker(c.Request().Context(), streamID, data)
+	defer ticker.Stop()
+
+	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
+	c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
+	c.Response().Header().Set(echo.HeaderConnection, "keep-alive")
+	c.Response().WriteHeader(echo.StatusOK)
+
+	for {
+		select {
+		case <-c.Request().Context().Done():
+			return
+		case <-ticker.C:
+			events = h.fetchEvents(c)
+			data = h.marshalEvents(events)
+			h.publishEvents(streamID, data)
+		}
+	}
