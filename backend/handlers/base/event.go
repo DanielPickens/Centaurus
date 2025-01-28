@@ -137,3 +137,15 @@ func (h *BaseHandler) GetEventStream(c echo.Context) {
 			h.publishEvents(streamID, data)
 		}
 	}
+
+	return
+}
+
+func (h *BaseHandler) GetPublishedEvents(c echo.Context) {
+	streamID := h.buildEventStreamID(c)
+	events := h.fetchEvents(c)
+	data := h.marshalEvents(events)
+	h.publishEvents(streamID, data)
+	return
+}
+
