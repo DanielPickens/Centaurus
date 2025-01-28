@@ -80,6 +80,14 @@ func TestAppConfigBuildKubeConfigs(t *testing.T) {
 		})
 	}
 }
+func TestAppConfigReloadConfig(t *testing.T) {
+	config := NewAppConfig("appTest", 10, 10)
+	config.ReloadConfig()
+	assert.NotEmpty(t, config.KubeConfig)
+}
+
+
+
 
 func TestAppConfigRemoveKubeConfig(t *testing.T) {
 	tests := []struct {
