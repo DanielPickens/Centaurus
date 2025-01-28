@@ -149,3 +149,4 @@ func (h *BaseHandler) fetchEvents(c echo.Context) []any {
 	}
 	return events
 }
+

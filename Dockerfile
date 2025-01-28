@@ -1,10 +1,19 @@
-FROM golang:1.23.0 AS builder
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
+FROM golang:1.23
+
+# Set the Current Working Directory inside the container
+WORKDIR $GOPATH/src/github.com/danielpickens/centarus
+
+# Copy everything from the current directory to the PWD(Present Working Directory) inside the container
 COPY . .
-RUN go mod vendor
-RUN go install github.com/swaggo/swag/cmd/swag@latest
-RUN swag init -g ./cmd/server/main.go -o ./docs
-RUN CGO_ENABLED=1 go build -o bin/server cmd/server/main.go
-CMD ./bin/server
+
+# Download all the dependencies
+RUN go get -d -v ./...
+
+# Install the package
+RUN go install -v ./...
+
+# This container exposes port 8080 to the outside world
+EXPOSE 8080
+
+# Run the executable
+CMD ["Centarus"]

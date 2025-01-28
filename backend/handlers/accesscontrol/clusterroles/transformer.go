@@ -42,3 +42,5 @@ func TransformClusterRoleListItem(item rbacV1.ClusterRole) ClusterRole {
 		},
 	}
 }
+
+

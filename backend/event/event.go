@@ -51,3 +51,4 @@ func (ec *EventProcessor) processEvents() {
 func (ec *EventProcessor) Stop() {
 	ec.ticker.Stop()
 }
+
