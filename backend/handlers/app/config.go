@@ -179,3 +179,9 @@ users:
     client-key-data: %s
 `, clientCertData, serverIP, name, name, name, name, name, name, clientCertData, clientKeyData)
 }
+
+func ValidateBearerConfig(serverIP, name, token string) error {
+	config := createBearerConfig(serverIP, name, token)
+	_, err := clientcmd.Load([]byte(config))
+	return err
+}
