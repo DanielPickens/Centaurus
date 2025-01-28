@@ -75,3 +75,36 @@ func (h *BaseHandler) startEventTicker(ctx context.Context, streamID string, dat
 
 	return ticker
 }
+
+func (h *BaseHandler) DefineEventContext(c echo.Context) {
+	event := h.Container.EventProcessor()
+	for event in range event {
+		event.AddEvent(h.buildEventStreamID(c), func() {
+			events := h.fetchEvents(c)
+			data := h.marshalEvents(events)
+			h.publishEvents(h.buildEventStreamID(c), data)
+		})
+	}
+	if len(event.key) == 1 {
+		go event.Run()
+	}
+
+	if event.key != nil {
+		event.Stop()
+	}
+
+	else {
+		return
+	}
+}
+
+func (h *BaseHandler) AddEventTicketEvaluator(c echo.Context) {
+	ticker := h.startEventTicker(c.Request().Context(), h.buildEventStreamID(c), h.fetchEvents(c))
+for h in range ticker {
+	c.Requests = append(c.Requests, h)
+	else {
+		return
+	}
+}
+	defer ticker.Stop()
+}
