@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"k8s.io/client-go/util/homedir"
 	"os"
 	"path/filepath"
@@ -186,8 +185,7 @@ func TestReadAllFilesInDir(t *testing.T) {
 	// Create a temporary directory
 	tempDir, err := os.MkdirTemp("", "example-dir-*")
 	if err != nil {
-		fmt.Println("Error creating temp directory:", err)
-		return
+		t.Fatal("Error creating temp directory:", err)
 	}
 	defer os.RemoveAll(tempDir) // Clean up the directory and files after use
 
@@ -197,14 +195,12 @@ func TestReadAllFilesInDir(t *testing.T) {
 
 	_, err = os.Create(file1Path)
 	if err != nil {
-		fmt.Println("Error creating file1:", err)
-		return
+		t.Fatal("Error creating file1:", err)
 	}
 
 	_, err = os.Create(file2Path)
 	if err != nil {
-		fmt.Println("Error creating file2:", err)
-		return
+		t.Fatal("Error creating file2:", err)
 	}
 
 	tests := []struct {
