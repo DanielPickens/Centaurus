@@ -74,3 +74,20 @@ func transformItems(items []interface{}, b *base.BaseHandler) ([]byte, error) {
 
 	return json.Marshal(t)
 }
+
+func TransformConfigMapList(configMaps []coreV1.ConfigMap) []ConfigMap {
+	var configMapList []ConfigMap
+
+	for _, configMap := range configMaps {
+		configMapList = append(configMapList, ConfigMap{
+			ObjectMeta: ObjectMeta{
+				Name:              configMap.Name,
+				Namespace:         configMap.Namespace,
+				CreationTimestamp: configMap.CreationTimestamp.Time,
+			},
+			Data: configMap.Data,
+		})
+	}
+
+	return configMapList
+}
