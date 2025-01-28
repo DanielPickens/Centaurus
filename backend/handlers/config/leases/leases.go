@@ -75,3 +75,20 @@ func transformItems(items []interface{}, b *base.BaseHandler) ([]byte, error) {
 
 	return json.Marshal(t)
 }
+
+
+func TransformLeaseList(list []v1.Lease) []Lease {
+	var leases []Lease
+	for _, lease := range list {
+		leases = append(leases, Lease{
+			Name: lease.Name,
+			Namespace: lease.Namespace,
+			Owner: lease.OwnerReferences,
+			AcquisitionTime: lease.Spec.AcquisitionTime,
+			LeaseDurationSeconds: lease.Spec.LeaseDurationSeconds,
+			RenewTime: lease.Spec.RenewTime,
+			LeaseTransitions: lease.Status.LeaseTransitions,
+		})
+	}
+	return leases
+}
