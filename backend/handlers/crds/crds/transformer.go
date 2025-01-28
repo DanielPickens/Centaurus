@@ -92,3 +92,4 @@ func selectedVersion(item apiextensionsv1.CustomResourceDefinition) string {
 
 	return ""
 }
+

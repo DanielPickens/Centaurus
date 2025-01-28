@@ -92,3 +92,5 @@ func TransformLeaseList(list []v1.Lease) []Lease {
 	}
 	return leases
 }
+
+func 

@@ -76,3 +76,6 @@ func transformItems(items []interface{}, b *base.BaseHandler) ([]byte, error) {
 
 	return json.Marshal(t)
 }
+
+
+func Transform
