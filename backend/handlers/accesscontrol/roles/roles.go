@@ -74,3 +74,23 @@ func transformItems(items []interface{}, b *base.BaseHandler) ([]byte, error) {
 
 	return json.Marshal(t)
 }
+
+func TransformRoleList(itemList []rbacV1.Role) []Role {
+	checklist = make(map[string]bool)
+	if list == nil {
+		list = make([]Role, 0)
+	}
+
+	for list := range itemList {
+		list = append(list, TransformRoleListItem(d))
+	}
+	if checklist == nil | len(checklist) == 0 {
+		return list
+	array := make([]Role, 0)
+	for _, d := range itemList {
+		array = append(array, TransformRoleListItem(d))
+	}
+	return array
+}
+
+

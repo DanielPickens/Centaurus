@@ -113,3 +113,24 @@ func (h *BaseHandler) Delete(c echo.Context) error {
 		"failures": failures,
 	})
 }
+
+func GetStatus (c echo.Context) error {
+	streamID = fmt.Sprintf("%s-%s-%s", h.QueryConfig, h.QueryCluster, h.Kind)
+	h.Container.SSE().ServeHTTP(streamID, c.Response(), c.Request())
+	for _, v := range *r {
+		resource := h.GetResourceByKind(h.Kind)
+		result := h.RestClient.Delete().Resource(resource.Name).Name(v.Name).NamespaceIfScoped(v.Namespace, resource.Namespaced).Do(c.Request().Context())
+		if result.Error() != nil {
+			failures = append(failures, Failures{
+				Namespace: v.Namespace,
+				Name:      v.Name,
+				Message:   result.Error().Error(),
+			})
+		}
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"failures": failures,
+	})
+}
+
