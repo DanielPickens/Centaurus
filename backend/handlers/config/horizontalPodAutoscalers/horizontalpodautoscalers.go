@@ -75,3 +75,35 @@ func transformItems(items []interface{}, _ *base.BaseHandler) ([]byte, error) {
 
 	return json.Marshal(t)
 }
+
+func TransformHorizontalPodAutoscaler(list []autoScalingV2.HorizontalPodAutoscaler) []HorizontalPodAutoscaler {
+	var hpaList []HorizontalPodAutoscaler
+
+	for _, hpa := range list {
+		hpaList = append(hpaList, HorizontalPodAutoscaler{
+			Name: hpa.Name,
+			UID:  string(hpa.UID),
+		})
+	}
+
+	return hpaList
+}
+
+type HorizontalPodAutoscaler struct {
+	Name string `json:"name"`
+	UID  string `json:"uid"`
+}
+
+func (h *HorizontalPodAutoScalerHandler) GetList(c echo.Context) error {
+	return h.BaseHandler.GetList(c)
+}
+
+func (h *HorizontalPodAutoScalerHandler) GetDetails(c echo.Context) error {
+	return h.BaseHandler.GetDetails(c)
+}
+
+func (h *HorizontalPodAutoScalerHandler) GetEvents(c echo.Context) error {
+	return h.BaseHandler.GetEvents(c)
+}
+
+
