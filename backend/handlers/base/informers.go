@@ -119,3 +119,33 @@ func (h *BaseHandler) processYAMLEvents(namespace, name string) func() {
 		})
 	}
 }
+
+func (h *BaseHandler) getStreamIDAndItem(namespace, name string) (string, any, bool, error) {
+	streamID := fmt.Sprintf("%s-%s-%s", h.QueryConfig, h.QueryCluster, h.Kind)
+	item, exists, err := h.Informer.GetStore().GetByKey(fmt.Sprintf("%s/%s", namespace, name))
+	return streamID, item, exists, err
+}
+func (h *BaseHandler) buildEventStreamID(c echo.Context) string {
+	return fmt.Sprintf("%s-%s-%s-events", h.QueryConfig, h.QueryCluster, h.Kind)
+}
+
+func (h *BaseHandler) fetchEvents(c echo.Context) []any {
+	l, err := h.Container.ClientSet(c.QueryParam("config"), c.QueryParam("cluster")).
+		CoreV1().
+		Events(c.QueryParam("namespace")).
+		List(c.Request().Context(), metaV1.ListOptions{
+			FieldSelector: fmt.Sprintf("involvedObject.name=%s", c.Param("name")),
+			TypeMeta:      metaV1.TypeMeta{Kind: h.Kind},
+		})
+
+	if err != nil {
+		return []any{}
+	}
+
+	events := make([]any, 0)
+	for _, event := range l.Items {
+		event.ManagedFields = nil
+		events = append(events, event)
+	}
+	return events
+}
