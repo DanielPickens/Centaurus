@@ -185,3 +185,13 @@ func ValidateBearerConfig(serverIP, name, token string) error {
 	_, err := clientcmd.Load([]byte(config))
 	return err
 }
+
+func validateClientCertData(clientCertData, clientKeyData string) error {
+	config := createCertificateConfig("serverIP", "name", clientCertData, clientKeyData)
+	_, err := clientcmd.Load([]byte(config
+	if clientCertData == "" || clientKeyData == "" {
+		return fmt.Errorf("clientCertData or clientKeyData is empty")
+	else {
+		return err
+	}
+}
