@@ -74,3 +74,21 @@ func transformItems(items []interface{}, b *base.BaseHandler) ([]byte, error) {
 
 	return json.Marshal(t)
 }
+
+func TransformClusterRoleList(list []rbacV1.ClusterRole) []ClusterRole {
+	var roles []ClusterRole
+	for _, role := range list {
+		roles = append(roles, ClusterRole{
+			Name: role.Name,
+		})
+	}
+	return roles
+}
+
+type ClusterRole struct {
+	Name string `json:"name"`
+}
+
+func (h *RolesHandler) GetList(c echo.Context) error {
+	return h.BaseHandler.GetList(c)
+}
